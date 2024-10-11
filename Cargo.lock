@@ -12931,6 +12931,7 @@ dependencies = [
  "ic-types",
  "mockall 0.13.0",
  "rand 0.8.5",
+ "strum",
  "thiserror",
 ]
 

@@ -173,6 +173,7 @@ fn hash_key_val(key: String, val: &RawHttpRequestVal) -> Vec<u8> {
 pub(crate) fn hash_of_map<S: ToString>(map: &BTreeMap<S, RawHttpRequestVal>) -> [u8; 32] {
     let mut hashes: Vec<Vec<u8>> = Vec::new();
     for (key, val) in map.iter() {
+        println!("map entry: {:?} {:?}", key.to_string(), val);
         hashes.push(hash_key_val(key.to_string(), val));
     }
 
@@ -180,14 +181,18 @@ pub(crate) fn hash_of_map<S: ToString>(map: &BTreeMap<S, RawHttpRequestVal>) -> 
     // same as sorting by concatenation of H(field name) · H(field value)
     // (although in practice it's actually more stable in the presence of
     // duplicated field names).  Then concatenate all the hashes.
+    println!("hashes unsorted: {:?}", hashes);
     hashes.sort();
+    println!("hashes sorted: {:?}", hashes);
 
     let mut hasher = Sha256::new();
     for hash in hashes {
         hasher.write(&hash);
     }
+    let hashed = hasher.finish();
+    println!("hashed: {:?}", hashed);
 
-    hasher.finish()
+    hashed
 }
 
 impl From<&MessageId> for u32 {

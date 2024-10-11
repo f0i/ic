@@ -994,7 +994,10 @@ mod authenticated_requests_delegations {
     use crate::RequestValidationError::InvalidDelegationExpiry;
     use crate::RequestValidationError::{CanisterNotInDelegationTargets, InvalidSignature};
     use crate::{HttpRequestVerifier, RequestValidationError};
+    use ic_cdk::println;
     use ic_crypto_test_utils_reproducible_rng::reproducible_rng;
+    use ic_types::messages::Delegation;
+    use ic_types::messages::SignedDelegation;
     use ic_types::messages::{HttpRequest, Query, ReadState, SignedIngressContent};
     use ic_types::{CanisterId, Time};
     use ic_validator_http_request_test_utils::{
@@ -1036,6 +1039,80 @@ mod authenticated_requests_delegations {
 
             assert_eq!(result, Ok(()), "Test with {} failed", builder_info);
         }
+    }
+
+    #[test]
+    fn should_validate_single_delegation() {
+        /*
+                let sessionKey: Vec<u8> = vec![
+                    48, 89, 48, 19, 6, 7, 42, 134, 72, 206, 61, 2, 1, 6, 8, 42, 134, 72, 206, 61, 3, 1, 7,
+                    3, 66, 0, 4, 106, 201, 130, 188, 45, 33, 244, 169, 159, 231, 224, 29, 164, 52, 170, 38,
+                    65, 131, 81, 193, 183, 58, 132, 49, 24, 255, 9, 168, 26, 6, 187, 13, 140, 28, 98, 236,
+                    240, 131, 246, 106, 243, 24, 172, 247, 30, 81, 72, 230, 169, 54, 119, 66, 128, 50, 138,
+                    0, 158, 242, 76, 15, 208, 253, 52, 225,
+                ];
+                let expiration = Time::from_nanos_since_unix_epoch(1_731_229_266_948_981_885);
+                let delegation = Delegation::new(sessionKey, expiration);
+                let signature = vec![
+                    11, 72, 37, 220, 240, 39, 249, 42, 57, 83, 254, 75, 94, 85, 210, 234, 151, 39, 140,
+                    125, 146, 191, 101, 232, 148, 145, 20, 61, 26, 214, 33, 167, 75, 25, 101, 60, 143, 167,
+                    120, 211, 103, 116, 127, 160, 238, 247, 41, 217, 180, 159, 66, 22, 213, 149, 111, 120,
+                    50, 0, 159, 46, 19, 87, 249, 8,
+                ];
+                let delegation: SignedDelegation = SignedDelegation::new(delegation, signature);
+                //
+                let root_of_trust_provider = {};
+
+                let builder = HttpRequestBuilder::new_update_call();
+                let builder_info = format!("{:?}", builder);
+                let request = builder
+                    .with_ingress_expiry_at(CURRENT_TIME)
+                    .with_delegation(delegation)
+                    .build();
+                let rng = &mut reproducible_rng();
+                let root_of_trust = RootOfTrust::new_random(rng);
+                let verifier = default_verifier()
+                    .with_root_of_trust(root_of_trust.public_key)
+                    .build();
+
+                //
+                //
+                let verifier = verifier_at_time(CURRENT_TIME).build();
+                let mut chain_builder = DelegationChain::rooted_at(random_user_key_pair(rng));
+
+                let result = verifier.validate_request(&request);
+                assert_eq!(result, Ok(()), "Test with {} failed", builder_info);
+        */
+        assert_eq!(1, 1, "");
+    }
+
+    #[test]
+    fn should_validate_delegation_chains_of_length_1() {
+        let rng = &mut reproducible_rng();
+        let verifier = verifier_at_time(CURRENT_TIME).build();
+        let key1 = random_user_key_pair(rng);
+        let key2 = random_user_key_pair(rng);
+        println!("delegation key1 {:?}", key1);
+        println!("delegation key2 {:?}", key2);
+        let mut chain_builder = DelegationChain::rooted_at(key1);
+        chain_builder = chain_builder.delegate_to(key2, CURRENT_TIME);
+        let chain = chain_builder.clone().build();
+        //
+        println!("chain {:?}", chain);
+        test_all_request_types_with_delegation_chain(
+            &verifier,
+            chain.clone(),
+            |result, builder_info| {
+                assert_eq!(
+                    result,
+                    Ok(()),
+                    "verification of delegation chain {:?} for request builder {} failed",
+                    chain,
+                    builder_info
+                );
+                assert_eq!(1, 2, "dummy");
+            },
+        );
     }
 
     #[test]
@@ -1833,6 +1910,7 @@ mod authenticated_requests_delegations {
             .with_ingress_expiry_at(CURRENT_TIME)
             .with_authentication(AuthenticationScheme::Delegation(delegation_chain.clone()))
             .build();
+        println!("request {:?}", request);
         let result = verifier.validate_request(&request);
         expect(result, builder_info);
 

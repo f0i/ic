@@ -139,6 +139,12 @@ impl<C, T: HttpRequestEnvelopeFactory> HttpRequestBuilderGeneric<C, T> {
         self
     }
 
+    pub fn with_delegation(mut self, new_delegation: SignedDelegation) -> Self {
+        let delegations = Some(vec![new_delegation]);
+        self.overwrite_sender_delegations = Box::new(|_old| delegations);
+        self
+    }
+
     pub fn with_authentication_sender_being_anonymous(self) -> Self {
         self.with_authentication_sender(Blob(vec![ANONYMOUS_SENDER]))
     }
@@ -488,9 +494,14 @@ impl DirectAuthenticationScheme {
     }
 
     fn sign<T: Signable>(&self, message: &T) -> Vec<u8> {
+        println!("signed_bytes {:?}", message.as_signed_bytes());
         match self {
             DirectAuthenticationScheme::UserKeyPair(keypair) => {
-                keypair.sign(&message.as_signed_bytes()).to_vec()
+                println!("keypair {:?}", keypair);
+                println!("unsigned message {:?}", message.as_signed_bytes());
+                let signature = keypair.sign(&message.as_signed_bytes()).to_vec();
+                println!("signature: {:?}", signature);
+                signature
             }
             DirectAuthenticationScheme::CanisterSignature(signer) => signer.sign(message).0,
         }

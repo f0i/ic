@@ -58,14 +58,36 @@ mod delegation_chain {
         );
     }
 
+    fn to_hex(data: Vec<u8>) -> String {
+        let hex: String = data.iter().map(|byte| format!("{:02x}", byte)).collect();
+        return hex;
+    }
+
     #[test]
     fn should_produce_http_request_with_start_of_chain_as_sender_and_signer_pubkey() {
         let rng = &mut reproducible_rng();
         let first_key_pair = Ed25519KeyPair::generate(rng);
+        println!(
+            "first: {} {}",
+            to_hex(first_key_pair.public_key.to_vec()),
+            to_hex(first_key_pair.secret_key.to_vec())
+        );
         let second_key_pair = Ed25519KeyPair::generate(rng);
+        println!(
+            "second: {} {}",
+            to_hex(second_key_pair.public_key.to_vec()),
+            to_hex(second_key_pair.secret_key.to_vec())
+        );
         let expected_sender = UserId::from(PrincipalId::new_self_authenticating(
             &ed25519_public_key_to_der(first_key_pair.public_key.to_vec()),
         ));
+        let delegation = DelegationChain::rooted_at(UserKeyPair(first_key_pair))
+            .delegate_to(
+                UserKeyPair(second_key_pair),
+                Time::from_nanos_since_unix_epoch(1),
+            )
+            .build();
+        println!("delegation: {:?}", delegation);
         let request = HttpRequestBuilder::new_update_call()
             .with_authentication(Delegation(
                 DelegationChain::rooted_at(UserKeyPair(first_key_pair))
@@ -76,12 +98,59 @@ mod delegation_chain {
                     .build(),
             ))
             .build();
+        println!("request: {:?}", request);
+        println!("request.sender: {:?}", request.sender());
+        println!("request.authentication(): {:?}", request.authentication());
 
         assert_eq!(request.sender(), expected_sender);
         assert_matches!(request.authentication(), Authentication::Authenticated(user_signature)
             if user_signature.signer_pubkey == ed25519_public_key_to_der(first_key_pair.public_key.to_vec())
-        )
+        );
+        assert_eq!(1, 2);
     }
+
+    #[test]
+    fn should_produce_valid_delegation() {
+        let rng = &mut reproducible_rng();
+        let first_key_pair =  Ed25519KeyPair {
+             secret_key: [u8; 32] = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+             public_key: [u8; 32] = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+        };
+        println!(
+            "first: {} {}",
+            to_hex(first_key_pair.public_key.to_vec()),
+            to_hex(first_key_pair.secret_key.to_vec())
+        );
+        let second_key_pair = Ed25519KeyPair::generate(rng);
+        println!(
+            "second: {} {}",
+            to_hex(second_key_pair.public_key.to_vec()),
+            to_hex(second_key_pair.secret_key.to_vec())
+        );
+        let expected_sender = UserId::from(PrincipalId::new_self_authenticating(
+            &ed25519_public_key_to_der(first_key_pair.public_key.to_vec()),
+        ));
+        let delegation = DelegationChain::rooted_at(UserKeyPair(first_key_pair))
+            .delegate_to(
+                UserKeyPair(second_key_pair),
+                Time::from_nanos_since_unix_epoch(1),
+            )
+            .build();
+        println!("delegation: {:?}", delegation);
+        let request = HttpRequestBuilder::new_update_call()
+            .with_authentication(Delegation(
+                DelegationChain::rooted_at(UserKeyPair(first_key_pair))
+                    .delegate_to(
+                        UserKeyPair(second_key_pair),
+                        Time::from_nanos_since_unix_epoch(1),
+                    )
+                    .build(),
+            ))
+            .build();
+        println!("request: {:?}", request);
+        println!("request.sender: {:?}", request.sender());
+        println!("request.authentication(): {:?}", request.authentication());
+
 
     #[test]
     fn should_produce_http_request_signed_by_end_of_chain() {

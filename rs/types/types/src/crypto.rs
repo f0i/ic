@@ -522,7 +522,7 @@ impl fmt::Debug for CryptoError {
                 internal_error,
             } => write!(
                 f,
-                "{:?} signature could not be verified: public key {}, signature {}, error: {}",
+                "the stupid {:?} signature could not be verified: public key {}, signature {}, error: {}",
                 algorithm,
                 hex::encode(public_key_bytes),
                 hex::encode(sig_bytes),
