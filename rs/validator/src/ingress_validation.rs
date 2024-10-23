@@ -232,7 +232,7 @@ pub enum RequestValidationError {
     UserIdDoesNotMatchPublicKey(UserId, Vec<u8>),
     #[error("Invalid signature: {0}")]
     InvalidSignature(AuthenticationError),
-    #[error("Invalid delegation: {0}")]
+    #[error("Invalid asdfasdf delegation: {0}")]
     InvalidDelegation(AuthenticationError),
     #[error("Missing signature from user: {0}")]
     MissingSignature(UserId),
@@ -573,6 +573,7 @@ fn validate_signature_plain(
     signature: &BasicSigOf<MessageId>,
     pubkey: &UserPublicKey,
 ) -> Result<(), AuthenticationError> {
+    println!("asdf verify_signature_plain");
     validator
         .verify_basic_sig_by_public_key(signature, message_id, pubkey)
         .map_err(InvalidBasicSignature)
@@ -664,6 +665,8 @@ where
     R::Error: std::error::Error,
 {
     let (pk, pk_type) = public_key_from_bytes(pubkey)?;
+
+    println!("asdfqwer validate_delegation {:?}", delegation);
 
     match pk_type {
         KeyBytesContentType::EcdsaP256PublicKeyDerWrappedCose

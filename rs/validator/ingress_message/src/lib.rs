@@ -80,7 +80,7 @@ impl Display for RequestValidationError {
                 write!(f, "Invalid signature: {}", err)
             }
             RequestValidationError::InvalidDelegation(err) => {
-                write!(f, "Invalid delegation: {}", err)
+                write!(f, "asdf Invalid delegation: {}", err)
             }
             RequestValidationError::MissingSignature(user_id) => {
                 write!(f, "Missing signature from user: {}", user_id)

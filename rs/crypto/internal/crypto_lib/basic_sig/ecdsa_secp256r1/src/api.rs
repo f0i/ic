@@ -171,6 +171,7 @@ pub fn verify(
         }
     })?;
 
+    println!("asdf verify_signature_prehashed with ecdsa pubkey");
     match pubkey.verify_signature_prehashed(msg, &sig.0) {
         true => Ok(()),
         false => Err(CryptoError::SignatureVerification {

@@ -22,6 +22,7 @@ pub fn verify_basic_sig_by_public_key(
 
             let public_key = ed25519::types::PublicKeyBytes::try_from(public_key_bytes)?;
             let signature = ed25519::types::SignatureBytes::try_from(signature_bytes)?;
+            println!("asdf calling ed25519 verify_basic_dig_by_public_key");
             ed25519::verify(&signature, msg, &public_key)
         }
         AlgorithmId::EcdsaP256 => {

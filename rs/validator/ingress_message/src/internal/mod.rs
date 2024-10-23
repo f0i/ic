@@ -1,4 +1,5 @@
 use crate::{AuthenticationError, HttpRequestVerifier, RequestValidationError};
+use ic_cdk::println;
 use ic_crypto_interfaces_sig_verification::{BasicSigVerifierByPublicKey, CanisterSigVerifier};
 use ic_types::crypto::threshold_sig::{IcRootOfTrust, RootOfTrustProvider};
 use ic_types::crypto::{BasicSigOf, CanisterSigOf, CryptoResult, Signable, UserPublicKey};
@@ -322,6 +323,7 @@ impl<S: Signable> BasicSigVerifierByPublicKey<S> for StandaloneIngressSigVerifie
         signed_bytes: &S,
         public_key: &UserPublicKey,
     ) -> CryptoResult<()> {
+        println!("asdf verify_basic_sig_by_public_key!");
         ic_crypto_standalone_sig_verifier::verify_basic_sig_by_public_key(
             public_key.algorithm_id,
             &signed_bytes.as_signed_bytes(),

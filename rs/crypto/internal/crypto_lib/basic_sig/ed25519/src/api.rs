@@ -168,13 +168,15 @@ pub fn verify(
         }
     })?;
 
+    println!("asdf verify_signature_prehashed with ed25519 pubkey");
+    println!("msg: {:?}", msg);
     public_key
         .verify_signature(msg, &sig.0)
         .map_err(|e| CryptoError::SignatureVerification {
             algorithm: AlgorithmId::Ed25519,
             public_key_bytes: public_key.serialize_raw().to_vec(),
             sig_bytes: sig.0.to_vec(),
-            internal_error: e.to_string(),
+            internal_error: format!("{}, msg: {}", e.to_string(), hex::encode(msg)),
         })
 }
 

@@ -80,6 +80,7 @@ fn current_binary_path() -> Option<PathBuf> {
 }
 
 fn main() {
+    println!("Asdfasdfasdfasdfasdfasdfasdfasdfasdfasdf!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! 007");
     let current_binary_path = current_binary_path().unwrap();
     let current_binary_name = current_binary_path.file_name().unwrap().to_str().unwrap();
     if current_binary_name != "pocket-ic" && current_binary_name != "pocket-ic-server" {
@@ -248,7 +249,10 @@ async fn start(runtime: Arc<Runtime>) {
         let _ = port_file.flush();
     }
 
-    info!("The PocketIC server is listening on port {}", real_port);
+    info!(
+        "The debug PocketIC server is listening on port {}",
+        real_port
+    );
 
     main_task.await.unwrap();
 }
